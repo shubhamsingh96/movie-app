@@ -12,34 +12,10 @@ const App = () => {
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
+  const [isSearchMode, setIsSearchMode] = useState(false);
 
-  useEffect(() => {
-    const url = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${currentPage}`;
-    if (searchText === "") {
-      fetch(url)
-        .then((res) => res.json())
-        .then((res) => {
-          setMovies(res.results);
-          setCurrentPage(res.page)
-          setLastPage(res.total_pages);
-        })
-        .catch((err) => console.log(err));
-    }
-    
-  }, [searchText,currentPage]);
 
-  const handleTextChange = ({ target: { value } }) => {
-    setError("");
-    setSearchText(value);
-  };
-
-  const handleGetMovies = (e) => {
-    e.preventDefault();
-    const url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&query=${searchText}&page=${currentPage}&include_adult=false`;
-    if (searchText === "") {
-      setError("Please type a movie name to search");
-      return;
-    }
+  const handleApiCall = (url) => {
     fetch(url)
       .then((res) => res.json())
       .then((res) => {
@@ -48,20 +24,42 @@ const App = () => {
         setLastPage(res.total_pages);
       })
       .catch((err) => console.log(err));
+  }
+
+  useEffect(() => {
+    if(isSearchMode){
+      const url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&query=${searchText}&page=${currentPage}&include_adult=false`;
+      handleApiCall(url);
+    } else {
+      const url = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${currentPage}`;
+      handleApiCall(url);
+    }
+  }, [currentPage,isSearchMode])
+
+
+  useEffect(() => {
+    if(searchText === '' && isSearchMode){
+      setCurrentPage(1);
+      setIsSearchMode(false);
+    }
+  }, [searchText,isSearchMode])
+
+
+
+  const handleTextChange = ({ target: { value } }) => {
+    setError("");
+    setSearchText(value);
   };
 
-  // const handlePageChange = (pageValue) => {
-  //   if(searchText !== ''){
-  //     fetch(url)
-  //     .then((res) => res.json())
-  //     .then((res) => {
-  //       setMovies(res.results);
-  //       setCurrentPage(res.page)
-  //       setLastPage(res.total_pages);
-  //     })
-  //     .catch((err) => console.log(err));
-  //   }
-  // }
+  const handleGetMovies = (e) => {
+    e.preventDefault();
+    if (searchText === "") {
+      setError("Please type a movie name to search");
+      return;
+    }
+    setCurrentPage(1);
+    setIsSearchMode(true);
+  };
 
   return (
     <div className="App">

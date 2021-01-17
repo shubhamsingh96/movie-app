@@ -35,7 +35,7 @@ const Pagination = React.memo(({ lastPage, currentPage, onClick }) => {
   }
   const pagesArray = pagination.map((pg, index) => (
     <button
-      key={index}
+      key={pg}
       className='pagination-tab'
       className={`pagination-tab ${ currentPage === pg ? 'btn-gray' : 'btn-white' }`}
       onClick={() => onClick(pg)}
